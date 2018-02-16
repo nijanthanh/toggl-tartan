@@ -1,0 +1,1 @@
+Integration of Calendar (.ics) with Toggl specifically for use of students of Carnegie Mellon University students.
