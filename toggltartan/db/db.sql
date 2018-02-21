@@ -15,7 +15,7 @@ create table `users`(
 
 create table `events`(
     id BIGINT NULL AUTO_INCREMENT,
-    user_id INT NULL,
+    user_id INT,
     is_active TINYINT DEFAULT 1,
     course_id VARCHAR(10) NULL,
     start_time Time,
@@ -23,9 +23,7 @@ create table `events`(
     frequency VARCHAR(20) NULL, /* Possible values are onetime, weekly, monthly */
     from_date Date,
     till_date Date,
-    monday boolean default false,
-    tuesday boolean default false,
-    wednesday boolean default false,
-
-    PRIMARY KEY (`id`)
+    days_of_week INT NULL,
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );

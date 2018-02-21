@@ -10,8 +10,7 @@ c = Calendar(data.decode("utf-8"))
 
 begin_date = ""
 
-for event in c.events:
-    print(event)
+
 
 
 def create_task(api_token, description, project_id, start_time, duration):
