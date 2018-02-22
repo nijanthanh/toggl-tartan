@@ -186,13 +186,33 @@ def main():
         return jsonify(status=status, data=data)
 
 
-@app.route('/submit_api_token')
-def submit_api_token(name=None):
+@app.route('/submit_api_token', methods=['POST'])
+def submit_api_token():
+    # Validate POST data api_token
+    try:
+        (status, data) = create_or_update_user(request.form['api_token'])
+    except TogglTartanError as error:
+        status = "error"
+        data = error.value
+        # Ideally modify the logger itself to have context about the request
+        app.logger.info(
+            "Message=[" + data + "], Endpoint=[" + request.method + " " + request.path + "], Post data=[" + json.dumps(
+                request.form) + "], Args=[" + json.dumps(request.args) + "]")
+
     # Make request to https://www.toggl.com/api/v8/me
     # If empty result, notify users. Else update users table.
 
-    return render_template('hello.html', name=name)
+    return jsonify(status=status, data=data)
 
+
+@app.route('/get_event_data', methods=['GET'])
+def get_event_data():
+    cur = create_db_connection()
+
+    cur.execute("select id from users where api_token = %s order by id desc limit 1", [api_token])
+    rv = cur.fetchall()
+
+    return jsonify(status=status, data=data)
 
 if __name__ == "__main__":
     app.run(debug=True)

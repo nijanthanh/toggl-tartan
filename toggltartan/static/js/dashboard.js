@@ -1,11 +1,11 @@
 //== Class definition
-var Dashboard = function() {
+var Dashboard = function () {
 
-    var calendarInit = function() {
+    var calendarInit = function () {
         if ($('#m_calendar').length === 0) {
             return;
         }
-        
+
         var todayDate = moment().startOf('day');
         var YM = todayDate.format('YYYY-MM');
         var YESTERDAY = todayDate.clone().subtract(1, 'day').format('YYYY-MM-DD');
@@ -30,7 +30,7 @@ var Dashboard = function() {
                     className: "m-fc-event--light m-fc-event--solid-warning"
                 },
                 {
-                    title: 'Conference',                    
+                    title: 'Conference',
                     description: 'Lorem ipsum dolor incid idunt ut labore',
                     start: moment('2017-08-29T13:30:00'),
                     end: moment('2017-08-29T17:30:00'),
@@ -49,7 +49,7 @@ var Dashboard = function() {
                     className: "m-fc-event--danger m-fc-event--solid-focus"
                 },
                 {
-                    title: 'Reporting',                    
+                    title: 'Reporting',
                     description: 'Lorem ipsum dolor incid idunt ut labore',
                     start: moment('2017-09-03T13:30:00'),
                     end: moment('2017-09-04T17:30:00'),
@@ -143,7 +143,7 @@ var Dashboard = function() {
                 }
             ],
 
-            eventRender: function(event, element) {
+            eventRender: function (event, element) {
                 if (element.hasClass('fc-day-grid-event')) {
                     element.data('content', event.description);
                     element.data('placement', 'top');
@@ -157,14 +157,72 @@ var Dashboard = function() {
         });
     }
 
+    var submitApiToken = function () {
+        $('#api_token_form').validate({
+            rules: {
+                api_token: {
+                    required: true,
+                    rangelength: [32, 33]
+                }
+            },
+            messages: {
+                api_token: {
+                    required: "Please copy the API token from your <a href='https://www.toggl.com/app/profile' target='_blank'>Toggl Profile Page</a>",
+                    rangelength: "The Toggl API token should token should be 32 characters long"
+                }
+            },
+            submitHandler: function (form) {
+                console.log("SUBMIT HANDLER")
+
+                mApp.block('#api_token_portlet', {
+                    overlayColor: '#000000',
+                    type: 'loader',
+                    state: 'primary',
+                    message: 'Processing...'
+                });
+
+                $.ajax({
+                    type: 'POST',
+                    url: "/submit_api_token",
+                    data: {
+                        'api_token': $("input[name=api_token]").val()
+                    },
+                    success: function (response) {
+                        mApp.unblock('#api_token_portlet');
+
+                        if (response.status == 'success') {
+                            //window.location.href = "/";
+                            console.log(response)
+                        } else {
+                            $('#alertDiv').removeClass("m--hide");
+                            $('#alertText').text(response.data);
+                            return;
+                        }
+                    },
+                    error: function (response) {
+                        mApp.unblock('#api_token_portlet');
+                        $('#alertDiv').removeClass("m--hide");
+
+                        $('#alertText').text("An unexpected error was encountered.");
+                        return;
+                    },
+                    dataType: 'json'
+                });
+            }
+
+        });
+    }
+
+
     return {
-        init: function() {
+        init: function () {
+            submitApiToken();
             calendarInit();
         }
     };
 }();
 
 //== Class initialization on page load
-jQuery(document).ready(function() {
+jQuery(document).ready(function () {
     Dashboard.init();
 });
