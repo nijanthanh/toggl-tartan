@@ -170,20 +170,20 @@ def input_ics_file():
 
 @app.route('/', methods=['POST', 'GET'])
 def main():
-    try:
-        (status, data) = input_ics_file()
-    except TogglTartanError as error:
-        status = "error"
-        data = error.value
-        # Ideally modify the logger itself to have context about the request
-        app.logger.info(
-            "Message=[" + data + "], Endpoint=[" + request.method + " " + request.path + "], Post data=[" + json.dumps(
-                request.form) + "], Args=[" + json.dumps(request.args) + "]")
+    if request.method == "GET":
+        return render_template('index.html')
+    else:
+        try:
+            (status, data) = input_ics_file()
+        except TogglTartanError as error:
+            status = "error"
+            data = error.value
+            # Ideally modify the logger itself to have context about the request
+            app.logger.info(
+                "Message=[" + data + "], Endpoint=[" + request.method + " " + request.path + "], Post data=[" + json.dumps(
+                    request.form) + "], Args=[" + json.dumps(request.args) + "]")
 
-    return jsonify(status=status, data=data)
-
-
-    # return render_template('index.html')
+        return jsonify(status=status, data=data)
 
 
 @app.route('/submit_api_token')
