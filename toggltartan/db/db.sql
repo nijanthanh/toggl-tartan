@@ -8,6 +8,8 @@ create table `users`(
     toggl_id BIGINT NULL,
     email VARCHAR(100) NULL,
     name VARCHAR(100) NULL,
+    is_active TINYINT DEFAULT 1,
+    toggl_workspace_id BIGINT NULL,
     date_created DateTime,
     date_updated DateTime,
     PRIMARY KEY (`id`)
@@ -21,10 +23,23 @@ create table `events`(
     name VARCHAR(500) NULL,
     start_time Time,
     end_time Time,
-    frequency VARCHAR(20) NULL, /* Possible values are onetime, daily, weekly, monthly */
+    frequency VARCHAR(20) NULL COMMENT 'Possible values are onetime, daily, weekly, monthly',
     from_date Date,
-    till_date Date,
+    till_date Date COMMENT 'Last date on which event can start',
     days_of_week INT NULL,
+    toggl_project_id BIGINT NULL,
+    date_created DateTime,
+    date_updated DateTime,
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+create table `projects`(
+    id BIGINT NULL AUTO_INCREMENT,
+    user_id INT,
+    name VARCHAR(500) NULL,
+    toggl_project_id BIGINT NULL,
+    is_active TINYINT DEFAULT 1,
     date_created DateTime,
     date_updated DateTime,
     PRIMARY KEY (`id`),
