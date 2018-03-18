@@ -1,16 +1,10 @@
 //== Class definition
 var Dashboard = function () {
 
-    var calendarInit = function () {
+    var calendarInit = function (api_token) {
         if ($('#m_calendar').length === 0) {
             return;
         }
-
-        var todayDate = moment().startOf('day');
-        var YM = todayDate.format('YYYY-MM');
-        var YESTERDAY = todayDate.clone().subtract(1, 'day').format('YYYY-MM-DD');
-        var TODAY = todayDate.format('YYYY-MM-DD');
-        var TOMORROW = todayDate.clone().add(1, 'day').format('YYYY-MM-DD');
 
         $('#m_calendar').fullCalendar({
             header: {
@@ -18,13 +12,13 @@ var Dashboard = function () {
                 center: 'title',
                 right: 'month,agendaWeek,agendaDay,listWeek'
             },
-            editable: true,
+            editable: false,
             eventLimit: true, // allow "more" link when too many events
             navLinks: true,
-            defaultDate: moment('2017-09-15'),
-            events: [
+            events: '/event_data/' + api_token,
+            /*[
                 {
-                    title: 'Meeting',
+                    title: 'Lorem ipsum dolor sit incid idunt ut',
                     start: moment('2017-08-28'),
                     description: 'Lorem ipsum dolor sit incid idunt ut',
                     className: "m-fc-event--light m-fc-event--solid-warning"
@@ -141,7 +135,7 @@ var Dashboard = function () {
                     className: "m-fc-event--solid-info m-fc-event--light",
                     description: 'Lorem ipsum dolor sit amet, labore'
                 }
-            ],
+            ] ,*/
 
             eventRender: function (event, element) {
                 if (element.hasClass('fc-day-grid-event')) {
@@ -172,8 +166,6 @@ var Dashboard = function () {
                 }
             },
             submitHandler: function (form) {
-                console.log("SUBMIT HANDLER")
-
                 mApp.block('#api_token_portlet', {
                     overlayColor: '#000000',
                     type: 'loader',
@@ -191,11 +183,13 @@ var Dashboard = function () {
                         mApp.unblock('#api_token_portlet');
 
                         if (response.status == 'success') {
-                            //window.location.href = "/";
-                            console.log(response)
+                            // TODO: show the table div
+                            calendarInit($("input[name=api_token]").val());
+
                         } else {
                             $('#alertDiv').removeClass("m--hide");
-                            $('#alertText').text(response.data);
+                            $('#alertText').html(response.data);
+                            // TODO: hide the table div
                             return;
                         }
                     },
@@ -217,7 +211,6 @@ var Dashboard = function () {
     return {
         init: function () {
             submitApiToken();
-            calendarInit();
         }
     };
 }();
