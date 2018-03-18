@@ -41,3 +41,5 @@ pip-delete-this-directory.txt
 # Flask stuff:
 instance/
 .webassets-cache
+
+.DS_Store
