@@ -118,7 +118,7 @@ def get_days_of_week(days_of_week_list):
     return days_of_week
 
 
-def input_ics_file():
+def input_ics_file(api_token):
     cur = create_db_connection()
 
     calendar_file = os.path.join(app.root_path, 'scripts/g5.ics')
@@ -131,7 +131,7 @@ def input_ics_file():
 
     c = Calendar(calendar_data)
 
-    res = create_or_update_user(request.form['api_token'])
+    res = create_or_update_user(api_token)
     data = json.loads(res[1])
     user_id = data['user_id']
 
@@ -140,6 +140,11 @@ def input_ics_file():
     cur.execute("update events set is_active = 0, date_updated = now() where user_id = %s and is_active != 0", [user_id])
 
     malformed_events_list = []
+
+    timezone = ""
+    for key in c._timezones:
+        timezone = key
+        break
 
     for event in c.events:
         try:
@@ -164,9 +169,19 @@ def input_ics_file():
                     data) + "], Endpoint=[" + request.method + " " + request.path + "], Post data=[" + json.dumps(request.form) + "], Args=[" + json.dumps(
                     request.args) + "]")
 
-        event_begin_arrow = event.begin.to("America/New_York")
+        if timezone != "":
+            event_begin_arrow = event.begin.to(timezone)
+        else:
+            event_begin_arrow = event.begin.replace(tzinfo="America/New_York")
+
         start_time = event_begin_arrow.format('HH:mm:ss')
-        end_time = event.end.to("America/New_York").format('HH:mm:ss')
+
+        if timezone != "":
+            event_end_arrow = event.end.to(timezone)
+        else:
+            event_end_arrow = event.end.replace(tzinfo="America/New_York")
+
+        end_time = event_end_arrow.format('HH:mm:ss')
 
         try:
             p = re.compile('FREQ=[^;]*')
@@ -185,7 +200,7 @@ def input_ics_file():
             # till_date is last date on which event can start
 
             # Check if event start on one day and overflows to another day(s). If event starts and ends on same calendar day, then event_days is 0
-            event_length_timedelta = arrow.get(event.end.to("America/New_York").format('YYYY-MM-DD'), 'YYYY-MM-DD') - arrow.get(from_date, 'YYYY-MM-DD')
+            event_length_timedelta = arrow.get(event_end_arrow.format('YYYY-MM-DD'), 'YYYY-MM-DD') - arrow.get(from_date, 'YYYY-MM-DD')
             event_length_days = event_length_timedelta.days
 
             try:
@@ -227,7 +242,7 @@ def input_ics_file():
                     days_of_week_list = days_of_week_str.split(",")
                 except:
                     # Get the day of the week of the start date of the event
-                    day_of_week = event.begin.to("America/New_York").format("ddd")[:2].lower()  # Convert to 2 letter format from 3 letter format
+                    day_of_week = event_begin_arrow.format("ddd")[:2].lower()  # Convert to 2 letter format from 3 letter format
                     days_of_week_list = [day_of_week]
 
                 days_of_week = get_days_of_week(days_of_week_list)
@@ -254,7 +269,7 @@ def main():
         return render_template('index.html')
     else:
         try:
-            (status, data) = input_ics_file()
+            (status, data) = input_ics_file(request.form['api_token'])
         except TogglTartanError as error:
             status = "error"
             data = error.value
@@ -270,6 +285,7 @@ def main():
 def submit_api_token():
     # Validate POST data api_token
     try:
+        input_ics_file(request.form['api_token'])
         (status, response_data) = create_or_update_user(request.form['api_token'])
         #name =
         data = json.dumps({})
