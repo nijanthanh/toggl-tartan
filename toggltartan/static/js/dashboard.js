@@ -16,127 +16,6 @@ var Dashboard = function () {
             eventLimit: true, // allow "more" link when too many events
             navLinks: true,
             events: '/event_data/' + api_token,
-            /*[
-                {
-                    title: 'Lorem ipsum dolor sit incid idunt ut',
-                    start: moment('2017-08-28'),
-                    description: 'Lorem ipsum dolor sit incid idunt ut',
-                    className: "m-fc-event--light m-fc-event--solid-warning"
-                },
-                {
-                    title: 'Conference',
-                    description: 'Lorem ipsum dolor incid idunt ut labore',
-                    start: moment('2017-08-29T13:30:00'),
-                    end: moment('2017-08-29T17:30:00'),
-                    className: "m-fc-event--accent"
-                },
-                {
-                    title: 'Dinner',
-                    start: moment('2017-08-30'),
-                    description: 'Lorem ipsum dolor sit tempor incid',
-                    className: "m-fc-event--light  m-fc-event--solid-danger"
-                },
-                {
-                    title: 'All Day Event',
-                    start: moment('2017-09-01'),
-                    description: 'Lorem ipsum dolor sit incid idunt ut',
-                    className: "m-fc-event--danger m-fc-event--solid-focus"
-                },
-                {
-                    title: 'Reporting',
-                    description: 'Lorem ipsum dolor incid idunt ut labore',
-                    start: moment('2017-09-03T13:30:00'),
-                    end: moment('2017-09-04T17:30:00'),
-                    className: "m-fc-event--accent"
-                },
-                {
-                    title: 'Company Trip',
-                    start: moment('2017-09-05'),
-                    end: moment('2017-09-07'),
-                    description: 'Lorem ipsum dolor sit tempor incid',
-                    className: "m-fc-event--primary"
-                },
-                {
-                    title: 'ICT Expo 2017 - Product Release',
-                    start: moment('2017-09-09'),
-                    description: 'Lorem ipsum dolor sit tempor inci',
-                    className: "m-fc-event--light m-fc-event--solid-primary"
-                },
-                {
-                    title: 'Dinner',
-                    start: moment('2017-09-12'),
-                    description: 'Lorem ipsum dolor sit amet, conse ctetur'
-                },
-                {
-                    id: 999,
-                    title: 'Repeating Event',
-                    start: moment('2017-09-15T16:00:00'),
-                    description: 'Lorem ipsum dolor sit ncididunt ut labore',
-                    className: "m-fc-event--danger"
-                },
-                {
-                    id: 1000,
-                    title: 'Repeating Event',
-                    description: 'Lorem ipsum dolor sit amet, labore',
-                    start: moment('2017-09-18T19:00:00'),
-                },
-                {
-                    title: 'Conference',
-                    start: moment('2017-09-20T13:00:00'),
-                    end: moment('2017-09-21T19:00:00'),
-                    description: 'Lorem ipsum dolor eius mod tempor labore',
-                    className: "m-fc-event--accent"
-                },
-                {
-                    title: 'Meeting',
-                    start: moment('2017-09-11'),
-                    description: 'Lorem ipsum dolor eiu idunt ut labore'
-                },
-                {
-                    title: 'Lunch',
-                    start: moment('2017-09-18'),
-                    className: "m-fc-event--info m-fc-event--solid-accent",
-                    description: 'Lorem ipsum dolor sit amet, ut labore'
-                },
-                {
-                    title: 'Meeting',
-                    start: moment('2017-09-24'),
-                    className: "m-fc-event--warning",
-                    description: 'Lorem ipsum conse ctetur adipi scing'
-                },
-                {
-                    title: 'Happy Hour',
-                    start: moment('2017-09-24'),
-                    className: "m-fc-event--light m-fc-event--solid-focus",
-                    description: 'Lorem ipsum dolor sit amet, conse ctetur'
-                },
-                {
-                    title: 'Dinner',
-                    start: moment('2017-09-24'),
-                    className: "m-fc-event--solid-focus m-fc-event--light",
-                    description: 'Lorem ipsum dolor sit ctetur adipi scing'
-                },
-                {
-                    title: 'Birthday Party',
-                    start: moment('2017-09-24'),
-                    className: "m-fc-event--primary",
-                    description: 'Lorem ipsum dolor sit amet, scing'
-                },
-                {
-                    title: 'Company Event',
-                    start: moment('2017-09-24'),
-                    className: "m-fc-event--danger",
-                    description: 'Lorem ipsum dolor sit amet, scing'
-                },
-                {
-                    title: 'Click for Google',
-                    url: 'http://google.com/',
-                    start: moment('2017-09-26'),
-                    className: "m-fc-event--solid-info m-fc-event--light",
-                    description: 'Lorem ipsum dolor sit amet, labore'
-                }
-            ] ,*/
-
             eventRender: function (event, element) {
                 if (element.hasClass('fc-day-grid-event')) {
                     element.data('content', event.description);
@@ -183,21 +62,39 @@ var Dashboard = function () {
                         mApp.unblock('#api_token_portlet');
 
                         if (response.status == 'success') {
-                            // TODO: show the table div
-                            calendarInit($("input[name=api_token]").val());
+                            var api_token = $("input[name=api_token]").val();
+                            $('#api_token_form').data('api_token', api_token);
+
+                            $('#file_upload_form').removeClass("m--hide");
+
+                            $.getJSON('/event_data/' + api_token, function (data) {
+                                console.log(data);
+                                if( !$.isArray(data) ||  !data.length ) {
+                                  // Show DIV with message to upload file
+                                } else {
+                                    // Show div with message to upload file to replace
+                                    calendarInit(api_token);
+                                    $('#event_calendar').removeClass("m--hide");
+                                }
+                            });
+
 
                         } else {
                             $('#alertDiv').removeClass("m--hide");
                             $('#alertText').html(response.data);
-                            // TODO: hide the table div
+                            $('#event_calendar').addClass("m--hide");
+                            $('#file_upload_form').addClass("m--hide");
                             return;
                         }
                     },
                     error: function (response) {
                         mApp.unblock('#api_token_portlet');
                         $('#alertDiv').removeClass("m--hide");
-
                         $('#alertText').text("An unexpected error was encountered.");
+
+                        $('#event_calendar').addClass("m--hide");
+                        $('#file_upload_form').addClass("m--hide");
+
                         return;
                     },
                     dataType: 'json'
@@ -206,7 +103,6 @@ var Dashboard = function () {
 
         });
     }
-
 
     return {
         init: function () {

@@ -54,7 +54,7 @@ def create_or_update_user(api_token):
                      user_data_dict['data']['fullname']))
         user_id = cur.lastrowid
 
-    data = {'user_id': user_id, 'primary_workspace_id': primary_workspace_id}
+    data = {'user_id': user_id, 'primary_workspace_id': primary_workspace_id, 'name': user_data_dict['data']['fullname']}
 
     return ("success", json.dumps(data))
 
@@ -271,6 +271,7 @@ def submit_api_token():
     # Validate POST data api_token
     try:
         (status, response_data) = create_or_update_user(request.form['api_token'])
+        #name =
         data = json.dumps({})
     except TogglTartanError as error:
         status = "error"
