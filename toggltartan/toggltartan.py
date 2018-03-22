@@ -263,29 +263,30 @@ def input_ics_file(api_token):
     return ("success", json.dumps(data))
 
 
-@app.route('/', methods=['POST', 'GET'])
+@app.route('/', methods=['GET'])
 def main():
-    if request.method == "GET":
-        return render_template('index.html')
-    else:
-        try:
-            (status, data) = input_ics_file(request.form['api_token'])
-        except TogglTartanError as error:
-            status = "error"
-            data = error.value
-            # Ideally modify the logger itself to have context about the request
-            app.logger.info(
-                "Message=[" + data + "], Endpoint=[" + request.method + " " + request.path + "], Post data=[" + json.dumps(
-                    request.form) + "], Args=[" + json.dumps(request.args) + "]")
+    return render_template('index.html')
 
-        return jsonify(status=status, data=data)
+
+@app.route('/upload_calendar_file', methods=['POST'])
+def upload_calendar_file():
+    try:
+        (status, data) = input_ics_file()
+    except TogglTartanError as error:
+        status = "error"
+        data = error.value
+        # Ideally modify the logger itself to have context about the request
+        app.logger.info(
+            "Message=[" + data + "], Endpoint=[" + request.method + " " + request.path + "], Post data=[" + json.dumps(
+                request.form) + "], Args=[" + json.dumps(request.args) + "]")
+
+    return jsonify(status=status, data=data)
 
 
 @app.route('/submit_api_token', methods=['POST'])
 def submit_api_token():
     # Validate POST data api_token
     try:
-        input_ics_file(request.form['api_token'])
         (status, response_data) = create_or_update_user(request.form['api_token'])
         #name =
         data = json.dumps({})

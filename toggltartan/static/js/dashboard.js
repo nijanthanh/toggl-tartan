@@ -45,12 +45,18 @@ var Dashboard = function () {
                 }
             },
             submitHandler: function (form) {
-                mApp.block('#api_token_portlet', {
+                mApp.block('#content', {
                     overlayColor: '#000000',
                     type: 'loader',
                     state: 'primary',
                     message: 'Processing...'
                 });
+
+                $('#file_upload_div').addClass("m--hide");
+                $('#modify_calendar_alert').addClass("m--hide");
+                $('#event_calendar').addClass("m--hide");
+                $('#upload_file_help_text').addClass("m--hide");
+                $('#alertDiv').addClass("m--hide");
 
                 $.ajax({
                     type: 'POST',
@@ -59,41 +65,44 @@ var Dashboard = function () {
                         'api_token': $("input[name=api_token]").val()
                     },
                     success: function (response) {
-                        mApp.unblock('#api_token_portlet');
+
 
                         if (response.status == 'success') {
                             var api_token = $("input[name=api_token]").val();
                             $('#api_token_form').data('api_token', api_token);
 
-                            $('#file_upload_form').removeClass("m--hide");
-
                             $.getJSON('/event_data/' + api_token, function (data) {
-                                console.log(data);
-                                if( !$.isArray(data) ||  !data.length ) {
-                                  // Show DIV with message to upload file
+                                mApp.unblock('#content');
+
+                                if (!$.isArray(data) || !data.length) {
+                                    // TODO Show DIV with message to upload file
+                                    $('#file_upload_div').removeClass("m--hide");
                                 } else {
-                                    // Show div with message to upload file to replace
+                                    $('#modify_calendar_alert').removeClass("m--hide");
                                     calendarInit(api_token);
                                     $('#event_calendar').removeClass("m--hide");
+                                    $('#upload_file_help_text').removeClass("m--hide");
                                 }
                             });
 
 
                         } else {
+                            mApp.unblock('#content');
+
                             $('#alertDiv').removeClass("m--hide");
                             $('#alertText').html(response.data);
                             $('#event_calendar').addClass("m--hide");
-                            $('#file_upload_form').addClass("m--hide");
+                            $('#file_upload_div').addClass("m--hide");
                             return;
                         }
                     },
                     error: function (response) {
-                        mApp.unblock('#api_token_portlet');
+                        mApp.unblock('#content');
                         $('#alertDiv').removeClass("m--hide");
                         $('#alertText').text("An unexpected error was encountered.");
 
                         $('#event_calendar').addClass("m--hide");
-                        $('#file_upload_form').addClass("m--hide");
+                        $('#file_upload_div').addClass("m--hide");
 
                         return;
                     },
@@ -104,9 +113,73 @@ var Dashboard = function () {
         });
     }
 
+    var uploadCalendarFile = function () {
+        /*$('#file_upload_form').validate({
+            rules: {
+                calendar_file_input: {
+                    required: true
+                }
+            },
+            messages: {
+                calendar_file_input: {
+                    required: "Please choose an ics file to upload. You can do this by exporting a calendar from either <a href='https://s3.andrew.cmu.edu/sio/#schedule-home' " +
+                    " target='_blank'>SIO</a> or Google Calendar"
+                }
+            },
+            submitHandler: function (form) { */
+        /*
+        $('#file_upload_form').submit(function(e) {
+            e.preventDefault();
+                mApp.block('#content', {
+                    overlayColor: '#000000',
+                    type: 'loader',
+                    state: 'primary',
+                    message: 'Processing...'
+                });
+
+                $('#alertFileDiv').addClass("m--hide");
+
+                console.log($("#file_upload_form")[0])
+                var fd = new FormData($("#file_upload_form")[0]);
+                console.log(fd)
+
+                $.ajax({
+                    type: 'POST',
+                    url: "/upload_calendar_file",
+                    data: fd,
+                    success: function (response) {
+                        mApp.unblock('#content');
+
+                        if (response.status == 'success') {
+                            console.log("SUCCESS");
+
+                        } else {
+                            $('#alertFileDiv').removeClass("m--hide");
+                            $('#alertFileText').html(response.data);
+                            return;
+                        }
+                    },
+                    error: function (response) {
+                        mApp.unblock('#content');
+                        $('#alertFileDiv').removeClass("m--hide");
+                        $('#alertFileText').text("An unexpected error was encountered.");
+
+                        return;
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                    //dataType: 'json'
+                });
+
+        });
+        */
+    }
+
     return {
         init: function () {
             submitApiToken();
+            uploadCalendarFile();
         }
     };
 }();
@@ -114,4 +187,9 @@ var Dashboard = function () {
 //== Class initialization on page load
 jQuery(document).ready(function () {
     Dashboard.init();
+
+    $("#show_import_calendar_div").click(function () {
+        $('#file_upload_div').removeClass("m--hide");
+        $('#modify_calendar_alert').addClass("m--hide");
+    })
 });

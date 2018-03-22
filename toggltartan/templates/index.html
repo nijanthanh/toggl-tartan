@@ -15,7 +15,7 @@
                     </div>
                 </div>
                 <!-- END: Subheader -->
-                <div class="m-content">
+                <div class="m-content" id="content">
                     <div class="row">
                         <div class="col-md-12">
                             <!--begin::Portlet-->
@@ -33,36 +33,37 @@
                                     </div>
                                 </div>
                                 <!--begin::Form-->
-                                <div class="col-md-6" style="padding-left: 0px">
-                                    <form class="m-form m-form--fit m-form--label-align-right" id="api_token_form">
 
-                                        <div class="m-portlet__body">
-                                            <div class="form-group m-form__group m--margin-top-10">
-                                                <div class="alert m-alert m-alert--default" role="alert">
-                                                    The example form below demonstrates common HTML form elements that receive updated styles from Bootstrap with
-                                                    additional classes.
+
+                                <div class="m-portlet__body">
+                                    <div class="alert m-alert m-alert--default" role="alert">
+                                        The example form below demonstrates common HTML form elements that receive updated styles from Bootstrap with
+                                        additional classes.
+                                    </div>
+
+
+                                    <form id="api_token_form">
+
+                                        <div class="form-group m-form__group">
+                                            <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert alert-danger alert-dismissible fade show m--hide"
+                                                 role="alert" id="alertDiv">
+                                                <div class="m-alert__icon">
+                                                    <i class="flaticon-exclamation-1"></i>
+                                                    <span></span>
+                                                </div>
+                                                <div class="m-alert__text">
+                                                    <strong>
+                                                        Error!
+                                                    </strong>
+                                                    <span id="alertText"></span>
+                                                </div>
+                                                <div class="m-alert__close">
+                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>
                                                 </div>
                                             </div>
 
-                                            <div class="form-group m-form__group">
-                                                <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert alert-danger alert-dismissible fade show m--hide"
-                                                     role="alert" id="alertDiv">
-                                                    <div class="m-alert__icon">
-                                                        <i class="flaticon-exclamation-1"></i>
-                                                        <span></span>
-                                                    </div>
-                                                    <div class="m-alert__text">
-                                                        <strong>
-                                                            Error!
-                                                        </strong>
-                                                        <span id="alertText"></span>
-                                                    </div>
-                                                    <div class="m-alert__close">
-                                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>
-                                                    </div>
-                                                </div>
 
-
+                                            <div class="col-md-6" style="padding-left: 0px; padding-right: 0px">
                                                 <label for="api_token_input">
                                                     Toggl API Token
                                                 </label>
@@ -76,45 +77,67 @@
                                                     </span>
                                                 </div>
                                             </div>
+                                        </div>
+                                    </form>
 
-                                            <div class="form-group m-form__group m--hide" id="file_upload_form">
-                                                <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert alert-danger alert-dismissible fade show m--hide"
-                                                     role="alert" id="alertFileDiv">
-                                                    <div class="m-alert__icon">
-                                                        <i class="flaticon-exclamation-1"></i>
-                                                        <span></span>
-                                                    </div>
-                                                    <div class="m-alert__text">
-                                                        <strong>
-                                                            Error!
-                                                        </strong>
-                                                        <span id="alertFileText"></span>
-                                                    </div>
-                                                    <div class="m-alert__close">
-                                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>
-                                                    </div>
+                                    <div class="form-group m-form__group m--margin-top-20 m--hide" id="modify_calendar_alert">
+                                        <div class="alert m-alert m-alert--default alert-link" role="alert">
+                                            The calendar below shows the events currently being synchronized with Toggl.
+                                            <a href="javascript:void(0);" class="arrow" title="Import new .ics file" id="show_import_calendar_div">Click here</a> to
+                                            modify/change the calendar events by importing a different calendar file (.ics)
+                                        </div>
+                                    </div>
+
+                                    <form id="file_upload_form" enctype="multipart/form-data" name="file_upload_form" method="post" action="/upload_calendar_file">
+                                        <div class="form-group m-form__group m--margin-top-30 m--hide" id="file_upload_div">
+                                            <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert alert-danger alert-dismissible fade show m--hide"
+                                                 role="alert" id="alertFileDiv">
+                                                <div class="m-alert__icon">
+                                                    <i class="flaticon-exclamation-1"></i>
+                                                    <span></span>
                                                 </div>
+                                                <div class="m-alert__text">
+                                                    <strong>
+                                                        Error!
+                                                    </strong>
+                                                    <span id="alertFileText"></span>
+                                                </div>
+                                                <div class="m-alert__close">
+                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>
+                                                </div>
+                                            </div>
 
+
+                                            <div class="col-md-6" style="padding-left: 0px; padding-right: 0px">
 
                                                 <label for="api_token_input">
                                                     Calendar file (*.ics)
                                                 </label>
 
+
                                                 <div class="custom-file">
-                                                    <input type="file" class="custom-file-input" id="customFile" accept=".ics">
-                                                    <label class="custom-file-label" for="customFile">
-                                                        Choose file
+                                                    <input type="file" class="custom-file-input" id="calendar_file_input">
+                                                    <label class="custom-file-label" for="calendar_file_input">
+                                                        Choose .ics file
                                                     </label>
+                                                    <div class="m-form__help m--hide m--regular-font-size-sm1" id="upload_file_help_text">
+                                                        The existing events will be removed and replaced with the events from the newly uploaded calendar file.
+                                                    </div>
+                                                </div>
+
+                                                <div class="m--padding-top-40">
+                                                    <button class="btn btn-primary m-btn--square" type="submit">Import calendar</button>
                                                 </div>
                                             </div>
 
 
                                         </div>
-
-
                                     </form>
-                                    <!--end::Form-->
+
                                 </div>
+
+
+                                <!--end::Form-->
                             </div>
                             <!--end::Portlet-->
                         </div>
