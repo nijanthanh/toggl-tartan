@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='toggltartan',
-    packages=['toggltartan'],
+    packages=['tt'],
     include_package_data=True,
     install_requires=[
         'flask',
