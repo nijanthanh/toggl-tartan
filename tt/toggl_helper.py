@@ -1,5 +1,5 @@
 import requests
-from tt.toggl_tartan_error import *
+from toggl_tartan_error import *
 
 def get_current_user_data(api_token):
     r = requests.get("https://www.toggl.com/api/v8/me", auth=(api_token, 'api_token'))

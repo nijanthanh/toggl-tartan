@@ -3,7 +3,7 @@ import json
 import re
 import arrow
 
-from tt.toggl_helper import *
+from toggl_helper import *
 from flask import Flask, render_template, request, jsonify, logging
 from flask_mysqldb import MySQL
 from ics import Calendar
