@@ -4,17 +4,6 @@
     <div class="m-grid__item m-grid__item--fluid m-grid m-grid--hor-desktop m-grid--desktop m-body">
         <div class="m-grid__item m-grid__item--fluid m-grid m-grid--desktop m-grid--ver-desktop m-body__content">
             <div class="m-grid__item m-grid__item--fluid m-wrapper">
-                <!-- BEGIN: Subheader -->
-                <div class="m-subheader ">
-                    <div class="d-flex align-items-center">
-                        <div class="mr-auto">
-                            <h3 class="m-subheader__title ">
-                                Dashboard
-                            </h3>
-                        </div>
-                    </div>
-                </div>
-                <!-- END: Subheader -->
                 <div class="m-content" id="content">
                     <div class="row">
                         <div class="col-md-12">
@@ -27,7 +16,7 @@
 													<i class="la la-gear"></i>
 												</span>
                                             <h3 class="m-portlet__head-text">
-                                                Base Form Controls
+                                                Auto-sync Toggl with your schedule
                                             </h3>
                                         </div>
                                     </div>
@@ -36,9 +25,62 @@
 
 
                                 <div class="m-portlet__body">
-                                    <div class="alert m-alert m-alert--default" role="alert">
-                                        The example form below demonstrates common HTML form elements that receive updated styles from Bootstrap with
-                                        additional classes.
+                                    <div class="alert m-alert m-alert--default m--font-bold" role="alert">
+                                        Do you want to remove the hassle of tracking your time on Toggl? Upload a calendar with your events like classes, recitations,
+                                        mentor meetings, client meetings here and forget them. The time entries will be posted to your Toggl account at the start of each
+                                        event.
+                                        <br/><br/>
+                                        Create a calendar file to sync with Toggl in one of the ways:<br/><br/>
+
+                                        <span class="font-weight-bold">
+                                                    Method 1:
+                                                </span>
+                                        <br/>
+                                        <ul>
+                                            <li>Click on "Calendar Export" for the required semester
+                                                on the <a href="https://s3.andrew.cmu.edu/sio/#schedule-home" target="_blank">Semester Schedule page on SIO</a>
+                                            </li>
+                                            <li>
+                                                Use the downloaded ICS file in the form below
+                                            </li>
+                                        </ul>
+
+
+                                        <span class="font-weight-bold">
+                                                    Method 2 (recommended):
+                                                </span>
+
+                                        <ul>
+                                            <li>Click on the "Calendar Export" button for the required semester
+                                                on the <a href="https://s3.andrew.cmu.edu/sio/#schedule-home" target="_blank">Semester Schedule page on SIO</a>
+                                            </li>
+
+                                            <li>
+                                                On Google Calendar, create a new calendar by clicking the <img src="/static/img/new-google-calendar.png"
+                                                                                                               style="height: 25px"/> button on the left sidebar.
+                                            </li>
+                                            </li>
+
+                                            <li>
+                                                <a href="https://support.google.com/calendar/answer/37118?hl=en" target="_blank">Import</a> the downloaded ICS file
+                                                into the newly created Google Calendar.
+                                            </li>
+
+                                            <li>
+                                                Create events (like weekly mentor meetings, project common working hours etc.) in Google Calendar with the event title
+                                                containing the CMU course ID.<br/>
+                                                For example, the title for mentor meeting event could be "17677 Mentor group meeting".
+                                            </li>
+
+                                            <li>
+                                                <a href="https://support.google.com/calendar/answer/37111?hl=en" target="_blank">Export</a> this customized calendar from
+                                                Google Calendar.
+                                            </li>
+
+                                            <li>
+                                                Extract the the downloaded ZIP file to obtain an ICS file to use in the form below
+                                            </li>
+                                        </ul>
                                     </div>
 
 
@@ -65,8 +107,13 @@
 
                                             <div class="col-md-6" style="padding-left: 0px; padding-right: 0px">
                                                 <label for="api_token_input">
-                                                    Toggl API Token
+                                                    <span class="font-weight-bold">Toggl API Token</span>
+                                                    <a href="https://toggl.com/app/profile" target="_blank" class="m--regular-font-size-sm3">
+                                                        Copy from here
+                                                    </a>
+                                                    </span>
                                                 </label>
+
 
                                                 <div class="input-group">
 
@@ -81,14 +128,15 @@
                                     </form>
 
                                     <div class="form-group m-form__group m--margin-top-20 m--hide" id="modify_calendar_alert">
-                                        <div class="alert m-alert m-alert--default alert-link" role="alert">
+                                        <div class="alert m-alert m-alert--default m--font-boldest" role="alert">
                                             The calendar below shows the events currently being synchronized with Toggl.
                                             <a href="javascript:void(0);" class="arrow" title="Import new .ics file" id="show_import_calendar_div">Click here</a> to
                                             modify/change the calendar events by importing a different calendar file (.ics)
                                         </div>
                                     </div>
 
-                                    <form id="file_upload_form" enctype="multipart/form-data" name="file_upload_form" method="post" action="/upload_calendar_file">
+
+                                    <form id="file_upload_form" enctype="multipart/form-data" name="file_upload_form" method="post">
                                         <div class="form-group m-form__group m--margin-top-30 m--hide" id="file_upload_div">
                                             <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert alert-danger alert-dismissible fade show m--hide"
                                                  role="alert" id="alertFileDiv">
@@ -107,16 +155,37 @@
                                                 </div>
                                             </div>
 
+                                            <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert alert-success alert-dismissible fade show m--hide"
+                                                 role="alert" id="alertFileSuccessDiv">
+                                                <div class="m-alert__icon">
+                                                    <i class="flaticon-calendar-1"></i>
+                                                    <span></span>
+                                                </div>
+                                                <div class="m-alert__text">
+                                                    <strong>
+                                                        Upload successful!
+                                                    </strong>
+                                                    <span id="alertFileSuccessText">However, <a id="malformedEventsList" href="#" data-toggle="m-popover" title=""
+                                                                                                data-content="wazzs" data-html="true" data-placement="top">
+                                                        <span id="malformedEventsCount"></span> event(s)</a> could not be mapped to a course in Toggl. </span>
+                                                    <br/>
+                                                    <span class="m--font-bolder">You are all set! The schedule shown below will be synced with your Toggl account henceforth.</span>
+                                                </div>
+                                                <div class="m-alert__close">
+                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>
+                                                </div>
+                                            </div>
+
 
                                             <div class="col-md-6" style="padding-left: 0px; padding-right: 0px">
 
                                                 <label for="api_token_input">
-                                                    Calendar file (*.ics)
+                                                    <span class="font-weight-bold">Calendar file (*.ics)</span>
                                                 </label>
 
 
                                                 <div class="custom-file">
-                                                    <input type="file" class="custom-file-input" id="calendar_file_input">
+                                                    <input type="file" class="custom-file-input" name="calendar_file_input" id="calendar_file_input">
                                                     <label class="custom-file-label" for="calendar_file_input">
                                                         Choose .ics file
                                                     </label>
@@ -126,13 +195,14 @@
                                                 </div>
 
                                                 <div class="m--padding-top-40">
-                                                    <button class="btn btn-primary m-btn--square" type="submit">Import calendar</button>
+                                                    <button class="btn btn-primary m-btn--square" name="file_upload_submit" type="submit">Import calendar</button>
                                                 </div>
                                             </div>
 
 
                                         </div>
                                     </form>
+
 
                                 </div>
 
@@ -154,7 +224,7 @@
 															<i class="flaticon-calendar"></i>
 														</span>
                                             <h3 class="m-portlet__head-text">
-                                                Calendar
+                                                My schedule
                                             </h3>
                                         </div>
                                     </div>

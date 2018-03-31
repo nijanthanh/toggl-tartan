@@ -3,10 +3,13 @@ import json
 import re
 import arrow
 
-from toggl_helper import *
-from flask import Flask, render_template, request, jsonify, logging
+from tt.toggl_helper import *
+from flask import Flask, render_template, request, jsonify, logging, url_for
 from flask_mysqldb import MySQL
 from ics import Calendar
+from werkzeug.utils import secure_filename
+
+ALLOWED_EXTENSIONS = set(['ics'])
 
 mysql = MySQL()
 
@@ -118,12 +121,10 @@ def get_days_of_week(days_of_week_list):
     return days_of_week
 
 
-def input_ics_file(api_token):
+def input_ics_file(api_token, calendar_file_path):
     cur = create_db_connection()
 
-    calendar_file = os.path.join(app.root_path, 'scripts/g5.ics')
-
-    with open(calendar_file) as f:
+    with open(calendar_file_path) as f:
         calendar_data = f.read()
 
     if not calendar_data:
@@ -135,7 +136,7 @@ def input_ics_file(api_token):
     data = json.loads(res[1])
     user_id = data['user_id']
 
-    create_projects(request.form['api_token'], user_id, data['primary_workspace_id'])
+    create_projects(api_token, user_id, data['primary_workspace_id'])
 
     cur.execute("update events set is_active = 0, date_updated = now() where user_id = %s and is_active != 0", [user_id])
 
@@ -263,15 +264,50 @@ def input_ics_file(api_token):
     return ("success", json.dumps(data))
 
 
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 @app.route('/', methods=['GET'])
 def main():
     return render_template('index.html')
 
 
-@app.route('/upload_calendar_file', methods=['POST'])
-def upload_calendar_file():
+@app.route('/upload_calendar_file/<api_token>', methods=['POST'])
+def upload_calendar_file(api_token):
     try:
-        (status, data) = input_ics_file()
+        # check if the post request has the file part
+        if 'calendar_file_input' not in request.files:
+            status = "error"
+            data = "Please choose a calendar file to import."
+
+            app.logger.info(
+                "Message=[" + data + "], Endpoint=[" + request.method + " " + request.path + "], Post data=[" + json.dumps(
+                    request.form) + "], Args=[" + json.dumps(request.args) + "]")
+
+            return jsonify(status=status, data=data)
+
+
+        file = request.files['calendar_file_input']
+        # if user does not select file, browser also
+        # submit a empty part without filename
+        if file.filename == '':
+            status = "error"
+            data = "Please choose a calendar file to import."
+
+            app.logger.info(
+                "Message=[" + data + "], Endpoint=[" + request.method + " " + request.path + "], Post data=[" + json.dumps(
+                    request.form) + "], Args=[" + json.dumps(request.args) + "]")
+
+            return jsonify(status=status, data=data)
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            calendar_file_path = os.path.join(app.root_path, 'ics_files/' + api_token + "-" + filename)
+
+            file.save(calendar_file_path)
+
+        (status, data) = input_ics_file(api_token, calendar_file_path)
     except TogglTartanError as error:
         status = "error"
         data = error.value

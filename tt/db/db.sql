@@ -1,3 +1,4 @@
+drop database toggltartan;
 create database toggltartan;
 
 use toggltartan;

@@ -43,3 +43,4 @@ instance/
 .webassets-cache
 
 .DS_Store
+ics_files

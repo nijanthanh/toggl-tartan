@@ -57,6 +57,7 @@ var Dashboard = function () {
                 $('#event_calendar').addClass("m--hide");
                 $('#upload_file_help_text').addClass("m--hide");
                 $('#alertDiv').addClass("m--hide");
+                $('#alertFileSuccessDiv').addClass("m--hide");
 
                 $.ajax({
                     type: 'POST',
@@ -65,26 +66,11 @@ var Dashboard = function () {
                         'api_token': $("input[name=api_token]").val()
                     },
                     success: function (response) {
-
-
                         if (response.status == 'success') {
                             var api_token = $("input[name=api_token]").val();
                             $('#api_token_form').data('api_token', api_token);
 
-                            $.getJSON('/event_data/' + api_token, function (data) {
-                                mApp.unblock('#content');
-
-                                if (!$.isArray(data) || !data.length) {
-                                    // TODO Show DIV with message to upload file
-                                    $('#file_upload_div').removeClass("m--hide");
-                                } else {
-                                    $('#modify_calendar_alert').removeClass("m--hide");
-                                    calendarInit(api_token);
-                                    $('#event_calendar').removeClass("m--hide");
-                                    $('#upload_file_help_text').removeClass("m--hide");
-                                }
-                            });
-
+                            handleShowCalendarDiv(api_token);
 
                         } else {
                             mApp.unblock('#content');
@@ -113,8 +99,29 @@ var Dashboard = function () {
         });
     }
 
+    var handleShowCalendarDiv = function (api_token) {
+        $.getJSON('/event_data/' + api_token, function (data) {
+            mApp.unblock('#content');
+
+            if (!$.isArray(data) || !data.length) {
+                // TODO Show DIV with message to upload file
+                $('#file_upload_div').removeClass("m--hide");
+            } else {
+                $('#modify_calendar_alert').removeClass("m--hide");
+                calendarInit(api_token);
+
+
+                $('#event_calendar').removeClass("m--hide");
+                $('#upload_file_help_text').removeClass("m--hide");
+            }
+        });
+    }
+
+
     var uploadCalendarFile = function () {
-        /*$('#file_upload_form').validate({
+        $('#file_upload_form').submit(function (e) {
+            e.preventDefault();
+        }).validate({
             rules: {
                 calendar_file_input: {
                     required: true
@@ -122,14 +129,11 @@ var Dashboard = function () {
             },
             messages: {
                 calendar_file_input: {
-                    required: "Please choose an ics file to upload. You can do this by exporting a calendar from either <a href='https://s3.andrew.cmu.edu/sio/#schedule-home' " +
+                    required: "Please choose an ICS file to upload. You can do this by exporting a calendar from either <a href='https://s3.andrew.cmu.edu/sio/#schedule-home' " +
                     " target='_blank'>SIO</a> or Google Calendar"
                 }
             },
-            submitHandler: function (form) { */
-        /*
-        $('#file_upload_form').submit(function(e) {
-            e.preventDefault();
+            submitHandler: function (form) {
                 mApp.block('#content', {
                     overlayColor: '#000000',
                     type: 'loader',
@@ -139,42 +143,70 @@ var Dashboard = function () {
 
                 $('#alertFileDiv').addClass("m--hide");
 
-                console.log($("#file_upload_form")[0])
                 var fd = new FormData($("#file_upload_form")[0]);
-                console.log(fd)
+                var api_token = $('#api_token_form').data('api_token');
 
                 $.ajax({
                     type: 'POST',
-                    url: "/upload_calendar_file",
+                    url: "/upload_calendar_file/" + api_token,
                     data: fd,
                     success: function (response) {
                         mApp.unblock('#content');
 
                         if (response.status == 'success') {
-                            console.log("SUCCESS");
+                            response_data = JSON.parse(response.data);
 
+                            var malformed_events_length = response_data['malformed_events_list'].length;
+
+                            var malformed_events_list_text = "";
+                            for (var i = 0; i < malformed_events_length; i++) {
+                                malformed_events_list_text = malformed_events_list_text + response_data['malformed_events_list'][i] + ", ";
+                            }
+                            malformed_events_list_text = malformed_events_list_text.slice(0, -2);
+
+
+                            if (malformed_events_length > 0) {
+                                console.log(malformed_events_list_text);
+                                $('#malformedEventsList').attr("data-content", malformed_events_list_text)
+
+                                $('#malformedEventsCount').html(malformed_events_length);
+                                $('#alertFileSuccessText').removeClass("m--hide");
+                            } else {
+                                $('#alertFileSuccessText').addClass("m--hide");
+                            }
+
+                            $('#alertFileSuccessDiv').removeClass("m--hide");
+
+                            handleShowCalendarDiv(api_token);
                         } else {
-                            $('#alertFileDiv').removeClass("m--hide");
-                            $('#alertFileText').html(response.data);
+                            $('#alertDiv').removeClass("m--hide");
+                            $('#alertText').html(response.data);
+                            $('#event_calendar').addClass("m--hide");
                             return;
                         }
+
                     },
                     error: function (response) {
                         mApp.unblock('#content');
                         $('#alertFileDiv').removeClass("m--hide");
                         $('#alertFileText').text("An unexpected error was encountered.");
+                        $('#event_calendar').addClass("m--hide");
+
 
                         return;
                     },
                     cache: false,
                     contentType: false,
-                    processData: false
-                    //dataType: 'json'
+                    processData: false,
+                    dataType: 'json'
                 });
 
+
+            }
+
         });
-        */
     }
+
 
     return {
         init: function () {

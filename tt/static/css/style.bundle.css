@@ -159,7 +159,8 @@ sup {
 
 a {
   color: #5867dd;
-  text-decoration: none;
+  font-weight: 500;
+  text-decoration: underline;
   background-color: transparent;
   -webkit-text-decoration-skip: objects; }
   a:hover {
@@ -223,6 +224,7 @@ th {
   text-align: inherit; }
 
 label {
+  font-weight: 500;
   display: inline-block;
   margin-bottom: .5rem; }
 
@@ -7446,7 +7448,7 @@ body {
   margin: 0px;
   padding: 0px;
   font-size: 13px;
-  font-weight: 300;
+  font-weight: 400;
   font-family: Montserrat;
   -ms-text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
