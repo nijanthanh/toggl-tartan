@@ -15,6 +15,7 @@ var Dashboard = function () {
             editable: false,
             eventLimit: true, // allow "more" link when too many events
             navLinks: true,
+            defaultView: 'listWeek',
             events: '/event_data/' + api_token,
             eventRender: function (event, element) {
                 if (element.hasClass('fc-day-grid-event')) {
@@ -104,7 +105,6 @@ var Dashboard = function () {
             mApp.unblock('#content');
 
             if (!$.isArray(data) || !data.length) {
-                // TODO Show DIV with message to upload file
                 $('#file_upload_div').removeClass("m--hide");
             } else {
                 $('#modify_calendar_alert').removeClass("m--hide");
@@ -178,6 +178,8 @@ var Dashboard = function () {
                             $('#alertFileSuccessDiv').removeClass("m--hide");
 
                             handleShowCalendarDiv(api_token);
+                            $('#modify_calendar_alert').addClass("m--hide");
+
                         } else {
                             $('#alertDiv').removeClass("m--hide");
                             $('#alertText').html(response.data);
