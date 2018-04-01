@@ -147,8 +147,8 @@ def run(run_from_date_time, run_to_date_time):
 
 
 # Round down to closest minute
-# tm = datetime.datetime.now()
-tm = datetime.datetime(2018, 2, 14, hour=8, minute=00, second=0)
+tm = datetime.datetime.now()
+#tm = datetime.datetime(2018, 2, 14, hour=8, minute=00, second=0)
 
 run_end_date_time = tm - datetime.timedelta(seconds=tm.second, microseconds=tm.microsecond)
 
