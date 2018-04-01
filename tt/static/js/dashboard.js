@@ -110,7 +110,6 @@ var Dashboard = function () {
                 $('#modify_calendar_alert').removeClass("m--hide");
                 calendarInit(api_token);
 
-
                 $('#event_calendar').removeClass("m--hide");
                 $('#upload_file_help_text').removeClass("m--hide");
             }

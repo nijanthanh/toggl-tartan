@@ -147,6 +147,9 @@ def input_ics_file(api_token, calendar_file_path):
         timezone = key
         break
 
+    # Hardcoding timezone. The above logic to find timezone is broken as the same calendar can have multiple timezone sections
+    timezone = "America/New_York"
+
     for event in c.events:
         try:
             p = re.compile('\d{5}?')
