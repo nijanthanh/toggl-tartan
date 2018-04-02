@@ -6,7 +6,7 @@ import datetime
 import arrow
 
 
-def create_time_entry(api_token, description, project_id, from_arrow, to_arrow):
+def create_time_entry(api_token, workspace_id, description, project_id, from_arrow, to_arrow):
     params = {}
     # {"time_entry":{"description":"Meeting with possible clients","tags":["toggltartan"],"duration":4800,"start":"2018-02-13T07:58:58.000Z","pid":94945801,"created_with":"toggltartan"}}
 
@@ -14,7 +14,8 @@ def create_time_entry(api_token, description, project_id, from_arrow, to_arrow):
     to_arrow = to_arrow.replace(tzinfo="America/New_York")
 
     params['description'] = description
-    params['tags'] = '["toggl-tartan"]'
+    params['tags'] = []
+    params['tags'].append("toggl-tartan")
 
     params['start'] = from_arrow.isoformat()
     params['duration'] = (to_arrow - from_arrow).seconds
@@ -24,12 +25,12 @@ def create_time_entry(api_token, description, project_id, from_arrow, to_arrow):
 
     params['created_with'] = "toggl-tartan"
 
-    data_dict = {}
-    data_dict['time_entry'] = params
-    data = json.dumps(data_dict)
+    params['wid'] = workspace_id
+
+    data = json.dumps(params)
 
     headers = {'Content-Type': 'application/json'}
-    r = requests.post("https://www.toggl.com/api/v8/time_entries", headers=headers, auth=(api_token, 'api_token'), data=data)
+    r = requests.post("https://www.toggl.com/api/v9/time_entries", headers=headers, auth=(api_token, 'api_token'), data=data)
 
     if (r.status_code == 200):
         print(time.strftime("%Y-%m-%d %H:%M:%s") + " - Created time entry - api_token=[" + api_token + "], description=[" + description + "], project_id=[" +
@@ -80,7 +81,7 @@ def run(run_from_date_time, run_to_date_time):
     conn = create_db_connection()
 
     with conn.cursor() as cur:
-        cur.execute("select id, api_token from users where is_active = 1 order by id")
+        cur.execute("select id, api_token, toggl_workspace_id from users where is_active = 1 order by id")
         user_rows = cur.fetchall()
 
         for user_row in user_rows:
@@ -106,7 +107,7 @@ def run(run_from_date_time, run_to_date_time):
                     from_arrow = arrow.get(str(event_row['from_date']) + " " + str(event_row['start_time']), "YYYY-MM-DD H:mm:ss")
                     to_arrow = arrow.get(str(event_row['till_date']) + " " + str(event_row['end_time']), "YYYY-MM-DD H:mm:ss")
 
-                    create_time_entry(user_row['api_token'], event_row['name'], event_row['toggl_project_id'], from_arrow, to_arrow)
+                    create_time_entry(user_row['api_token'], user_row['toggl_workspace_id'], event_row['name'], event_row['toggl_project_id'], from_arrow, to_arrow)
 
                 elif event_row['frequency'] == "daily" or event_row['frequency'] == "weekly":
 
@@ -137,7 +138,7 @@ def run(run_from_date_time, run_to_date_time):
                     else:
                         description = event_row['name']
 
-                    create_time_entry(user_row['api_token'], description, event_row['toggl_project_id'], from_arrow, to_arrow)
+                    create_time_entry(user_row['api_token'], user_row['toggl_workspace_id'], description, event_row['toggl_project_id'], from_arrow, to_arrow)
 
                 elif event_row['frequency'] == "monthly":
                     # Not implemented currently

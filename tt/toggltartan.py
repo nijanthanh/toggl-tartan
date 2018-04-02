@@ -43,8 +43,8 @@ def create_or_update_user(api_token):
             break
 
     if rv is not None:
-        cur.execute("update users set toggl_id = %s, email = %s, name = %s, date_updated = now() where id = %s",
-                    (user_data_dict['data']['id'], user_data_dict['data']['email'], user_data_dict['data']['fullname'], rv[0]))
+        cur.execute("update users set toggl_id = %s, email = %s, name = %s, toggl_workspace_id = %s, date_updated = now() where id = %s",
+                    (user_data_dict['data']['id'], user_data_dict['data']['email'], user_data_dict['data']['fullname'], primary_workspace_id, rv[0]))
 
         # If another user table entry exists with same api_token, mark it as inactive
         cur.execute("update users set is_active = 0, date_updated = now() where id != %s and api_token = %s",
@@ -52,9 +52,9 @@ def create_or_update_user(api_token):
 
         user_id = rv[0]
     else:
-        cur.execute("insert into users(api_token, toggl_id, email, name, is_active, date_created, date_updated) values (%s, %s, %s, %s, 1, now(), now())",
+        cur.execute("insert into users(api_token, toggl_id, email, name, is_active, toggl_workspace_id, date_created, date_updated) values (%s, %s, %s, %s, 1, %s, now(), now())",
                     (user_data_dict['data']['api_token'], user_data_dict['data']['id'], user_data_dict['data']['email'],
-                     user_data_dict['data']['fullname']))
+                     user_data_dict['data']['fullname'], primary_workspace_id))
         user_id = cur.lastrowid
 
     data = {'user_id': user_id, 'primary_workspace_id': primary_workspace_id, 'name': user_data_dict['data']['fullname']}
