@@ -15,7 +15,7 @@ var Dashboard = function () {
             editable: false,
             eventLimit: true, // allow "more" link when too many events
             navLinks: true,
-            defaultView: 'listWeek',
+            defaultView: 'agendaWeek',
             events: '/event_data/' + api_token,
             eventRender: function (event, element) {
                 if (element.hasClass('fc-day-grid-event')) {
