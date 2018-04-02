@@ -6,6 +6,8 @@ var Dashboard = function () {
             return;
         }
 
+        $('#m_calendar').fullCalendar('refetchEvents');
+
         $('#m_calendar').fullCalendar({
             header: {
                 left: 'prev,next today',
@@ -15,7 +17,7 @@ var Dashboard = function () {
             editable: false,
             eventLimit: true, // allow "more" link when too many events
             navLinks: true,
-            defaultView: 'agendaWeek',
+            defaultView: 'listWeek',
             events: '/event_data/' + api_token,
             eventRender: function (event, element) {
                 if (element.hasClass('fc-day-grid-event')) {

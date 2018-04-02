@@ -144,11 +144,14 @@ def input_ics_file(api_token, calendar_file_path):
 
     timezone = ""
     for key in c._timezones:
-        timezone = key
+        #timezone = key
+
+        # Hardcoding timezone. The above logic to find timezone is broken as the same calendar can have multiple timezone sections
+        # If timezone is not set, do not set it
+        timezone = "America/New_York"
         break
 
-    # Hardcoding timezone. The above logic to find timezone is broken as the same calendar can have multiple timezone sections
-    timezone = "America/New_York"
+
 
     for event in c.events:
         try:
