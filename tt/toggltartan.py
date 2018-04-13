@@ -409,5 +409,5 @@ def get_event_data(api_token):
     return jsonify(events_data_list)
 
 if __name__ == "__main__":
-#    app.run(debug=True)
-    app.run()
+    app.run(debug=True)
+#    app.run()
